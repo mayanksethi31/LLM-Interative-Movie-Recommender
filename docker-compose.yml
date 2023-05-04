@@ -24,7 +24,7 @@ services:
       CELERY_BROKER_URL: redis://redis_container:6379
       CELERY_RESULT_BACKEND: db+postgresql://postgres:postgres@postgres_container:5432/entertainment
       SENDGRID_FROM_EMAIL: mayank_sethi@berkeley.edu
-      SENDGRID_API_KEY: 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
+      SENDGRID_API_KEY: 
     depends_on:
         - redis_container
         - postgres_container
@@ -39,7 +39,7 @@ services:
       CELERY_BROKER_URL: redis://redis_container:6379
       CELERY_RESULT_BACKEND: db+postgresql://postgres:postgres@postgres_container:5432/entertainment
       SENDGRID_FROM_EMAIL: mayank_sethi@berkeley.edu
-      SENDGRID_API_KEY: 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
+      SENDGRID_API_KEY: 
     depends_on:
         - redis_container
         - postgres_container
@@ -64,7 +64,7 @@ services:
     build: ./recommendation_engine/
     container_name: "recommendation_engine"
     environment:
-      OPENAI_API_KEY: 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
+      OPENAI_API_KEY: 
     ports:
       - "5052:5052"
     depends_on:
