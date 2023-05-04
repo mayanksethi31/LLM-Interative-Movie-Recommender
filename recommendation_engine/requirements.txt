@@ -1,0 +1,7 @@
+SQLAlchemy==2.0.5
+Flask-SQLAlchemy==3.0.3
+postgres==4.0
+psycopg2-binary==2.9.5
+requests>=2.0.0
+flask==2.2.3
+openai

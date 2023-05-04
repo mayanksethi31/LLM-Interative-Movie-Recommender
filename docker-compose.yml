@@ -1,0 +1,91 @@
+version: '3'
+services:
+  redis_container:
+    image: redis
+    container_name: redis_container
+  postgres_container:
+    image: postgres:latest
+    container_name: "postgres_container"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: entertainment
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+      - ./init.db.sql:/docker-entrypoint-initdb.d/init.db.sql
+    ports:
+      - 5432:5432
+  email_worker_container:
+    build: ./email_worker_container/.
+    container_name: email_worker_container
+    volumes:
+      - ./email_worker_container/job_tasks.py:/app/job_tasks.py
+    environment:
+      CELERY_BROKER_URL: redis://redis_container:6379
+      CELERY_RESULT_BACKEND: db+postgresql://postgres:postgres@postgres_container:5432/entertainment
+      SENDGRID_FROM_EMAIL: mayank_sethi@berkeley.edu
+      SENDGRID_API_KEY: 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
+    depends_on:
+        - redis_container
+        - postgres_container
+  email_command_server:
+    build: ./email_command_server/
+    volumes:
+      - ./email_worker_container/job_tasks.py:/app/job_tasks.py
+    container_name: "email_command_server"
+    ports:
+      - "5053:5053"
+    environment:
+      CELERY_BROKER_URL: redis://redis_container:6379
+      CELERY_RESULT_BACKEND: db+postgresql://postgres:postgres@postgres_container:5432/entertainment
+      SENDGRID_FROM_EMAIL: mayank_sethi@berkeley.edu
+      SENDGRID_API_KEY: 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
+    depends_on:
+        - redis_container
+        - postgres_container
+        - email_worker_container
+  job_viewer:  
+    image: mher/flower
+    environment:
+      CELERY_BROKER_URL: redis://redis_container:6379
+      FLOWER_PORT: 8888
+    ports:  
+      - 8888:8888
+    depends_on:
+        - redis_container
+  tmdb_api_service:
+    build: ./tmdb_api_service/
+    container_name: "tmdb_api_service"
+    environment:
+      TMDB_API_KEY: 67e65465531417ee84b043edcf8e0d0b 
+    ports:
+      - "5051:5051"
+  recommendation_engine:
+    build: ./recommendation_engine/
+    container_name: "recommendation_engine"
+    environment:
+      OPENAI_API_KEY: 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
+    ports:
+      - "5052:5052"
+    depends_on:
+      - tmdb_api_service
+      - postgres_container
+  authorization_service:
+    build: ./authorization_service/
+    container_name: "authorization_service"
+    environment:
+       SECRET_KEY: chiragmayankpratikgermanyusuf 
+    ports:
+       - "5050:5050"
+    depends_on:
+        - postgres_container
+  analytics_service:
+    build: ./analytics_service/
+    container_name: "analytics_service"
+    ports:
+      - "5055:5055"
+    depends_on:
+        - authorization_service
+        - postgres_container
+volumes:
+  postgres-volume: {}

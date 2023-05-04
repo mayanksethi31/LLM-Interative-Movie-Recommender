@@ -1,0 +1,12 @@
+werkzeug
+tmdbsimple
+celery
+redis
+postgres
+psycopg2-binary
+Flask-SQLAlchemy
+requests
+sendgrid
+flask
+SQLAlchemy
+pyjwt
